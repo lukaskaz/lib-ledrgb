@@ -13,6 +13,7 @@ make
 sudo insmod ./rp1_ws281x_pwm.ko pwm_channel=$PWMCHANNEL
 sudo dtoverlay -d . rp1_ws281x_pwm
 sudo pinctrl set $GPIOPIN $PINCTRL pn
+sudo chmod a+rw /dev/ws281x_pwm
 
 echo "Done"
 

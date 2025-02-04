@@ -15,12 +15,21 @@ int main(int argc, char** argv)
         auto iface = ledrgb::Factory::create<Ledrgb, config_t, param_t>(
             {amount, bright});
 
-        std::ranges::for_each(std::views::iota(0, (int32_t)amount),
-                              [iface](uint8_t num) {
-                                  iface->light(num, (ledrgb::colortype)num);
-                              });
+        auto sequence = std::views::iota(0, (int32_t)amount);
+        std::ranges::for_each(sequence, [iface](uint8_t num) {
+            iface->light(num, (ledrgb::colortype)num);
+        });
         sleep(2);
         std::cout << "Completed first scenario" << std::endl;
+
+        ledrgb::grouptype group;
+        std::ranges::for_each(
+            sequence, [iface, color = amount, &group](uint8_t num) mutable {
+                group.emplace_back(num, (ledrgb::colortype)(--color));
+            });
+        iface->light(group);
+        sleep(2);
+        std::cout << "Completed second scenario" << std::endl;
     }
 
     if (argc > 4)
@@ -38,7 +47,7 @@ int main(int argc, char** argv)
         sleep(2);
         std::cout << "Light off" << std::endl;
         sleep(4);
-        std::cout << "Completed second scenario" << std::endl;
+        std::cout << "Completed third scenario" << std::endl;
     }
     return 0;
 }
