@@ -41,7 +41,7 @@ jobs:
     - name: Executing rpi4/ws281x program
       run: |
         cd rpi4
-        ./build/examples/rpi5/ws281x/prog
+        ./build/examples/rpi4/ws281x/prog
     - name: Preparing rpi5 binary
       run: |
         cd rpi5
