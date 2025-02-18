@@ -17,5 +17,3 @@ sudo chmod a+rw /dev/ws281x_pwm
 
 echo "Done"
 
-
-
