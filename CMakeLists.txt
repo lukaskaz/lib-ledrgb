@@ -6,6 +6,8 @@ project(ledrgb)
 include(cmake/flags.cmake)
 include(cmake/dependencies.cmake)
 
+option(USE_RPI4 "Use rpi4 hardware" OFF)
+option(USE_RPI5 "Use rpi5 hardware" OFF)
 option(RUN_TESTS "Creates and runs unit tests for the project" OFF)
 
 if(RUN_TESTS)
