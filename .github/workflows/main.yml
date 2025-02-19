@@ -8,76 +8,53 @@ on:
       types: [opened, synchronize, reopened]
 
 jobs:
-  build:
-    name: Build
+  build-rpi4:
+    name: Build rpi4
     runs-on: ubuntu-latest
     environment: production
 
     steps:
     - name: Checking out
       uses: actions/checkout@v4
-    - name: Building rpi4 target app
+    - name: Building target app
       run: |
-        cd rpi4
-        mkdir build && cd build && cmake .. && make
-    - name: Building rpi5 target app
-      run: |
-        cd rpi5
-        mkdir build && cd build && cmake .. && make
+        mkdir build && cd build && cmake -DUSE_RPI4=on .. && make
       
-  execution:
-    name: Execution
-    needs: [build]
+  execution-rpi4:
+    name: Execution rpi4
+    needs: [build-rpi4]
     runs-on: ubuntu-latest
     environment: production
 
     steps:
     - name: Checking out
       uses: actions/checkout@v4
-    - name: Preparing rpi4 binary
+    - name: Preparing binary
       run: |
-        cd rpi4
-        mkdir build && cd build && cmake .. -DADD_EXAMPLES=ON && make
+        mkdir build && cd build && cmake .. -DUSE_RPI4=on -DADD_EXAMPLES=ON && make
     - name: Executing rpi4/ws281x program
       run: |
-        cd rpi4
         ./build/examples/rpi4/ws281x/prog
-    - name: Preparing rpi5 binary
-      run: |
-        cd rpi5
-        mkdir build && cd build && cmake .. -DADD_EXAMPLES=ON && make
-    - name: Executing rpi5/ws281x program
-      run: |
-        cd rpi5
-        ./build/examples/rpi5/ws281x/prog
 
-  test:
-    name: Test
+  test-rpi4:
+    name: Test rpi4
     runs-on: ubuntu-latest
     environment: test
 
     steps:
     - name: Checking out
       uses: actions/checkout@v4
-    - name: Building rpi4 tests
+    - name: Building tests
       run: |
-        cd rpi4
-        cd tests && mkdir build && cd build && cmake .. && make
+        cd tests && mkdir build && cd build && cmake -DUSE_RPI4=on .. && make
     - name: Running tests
       run: |
-        ctest --output-on-failure --test-dir rpi4/tests/build/
-    - name: Building rpi5 tests
-      run: |
-        cd rpi5
-        cd tests && mkdir build && cd build && cmake .. && make
-    - name: Running tests
-      run: |
-        ctest --output-on-failure --test-dir rpi5/tests/build/
+        ctest --output-on-failure --test-dir tests/build/
 
-  tests-coverage:
-    name: Coverage
+  tests-coverage-rpi4:
+    name: Coverage rpi4
     if: false
-    needs: [test]
+    needs: [test-rpi4]
     runs-on: ubuntu-latest
     environment: test
 
@@ -87,20 +64,72 @@ jobs:
     - name: Setting up
       run: |
         sudo apt install lcov
-    - name: Preparing rpi4 tests
+    - name: Preparing tests
       run: |
-        cd rpi4
-        cd tests && mkdir build && cd build && cmake .. && make
+        cd tests && mkdir build && cd build && cmake -DUSE_RPI4=on .. && make
     - name: Running coverage checker
       run: |
-        cd rpi4
-        cd tests && ./scripts/check-coverage.sh
-    - name: Preparing rpi5 tests
-      run: |
-        cd rpi5
-        cd tests && mkdir build && cd build && cmake .. && make
-    - name: Running coverage checker
-      run: |
-        cd rpi5
         cd tests && ./scripts/check-coverage.sh
 
+  build-rpi5:
+    name: Build rpi5
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checking out
+      uses: actions/checkout@v4
+    - name: Building target app
+      run: |
+        mkdir build && cd build && cmake -DUSE_RPI5=on .. && make
+      
+  execution-rpi5:
+    name: Execution rpi5
+    needs: [build-rpi5]
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checking out
+      uses: actions/checkout@v4
+    - name: Preparing binary
+      run: |
+        mkdir build && cd build && cmake .. -DUSE_RPI5=on -DADD_EXAMPLES=ON && make
+    - name: Executing rpi5/ws281x program
+      run: |
+        ./build/examples/rpi5/ws281x/prog
+
+  test-rpi5:
+    name: Test rpi5
+    runs-on: ubuntu-latest
+    environment: test
+
+    steps:
+    - name: Checking out
+      uses: actions/checkout@v4
+    - name: Building tests
+      run: |
+        cd tests && mkdir build && cd build && cmake -DUSE_RPI5=on .. && make
+    - name: Running tests
+      run: |
+        ctest --output-on-failure --test-dir tests/build/
+
+  tests-coverage-rpi5:
+    name: Coverage rpi5
+    if: false
+    needs: [test-rpi5]
+    runs-on: ubuntu-latest
+    environment: test
+
+    steps:
+    - name: Checking out
+      uses: actions/checkout@v4
+    - name: Setting up
+      run: |
+        sudo apt install lcov
+    - name: Preparing tests
+      run: |
+        cd tests && mkdir build && cd build && cmake -DUSE_RPI5=on .. && make
+    - name: Running coverage checker
+      run: |
+        cd tests && ./scripts/check-coverage.sh
